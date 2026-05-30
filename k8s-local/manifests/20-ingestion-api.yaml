@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: venueops-ingestion-api
+  namespace: venueops
+  labels:
+    app: venueops-ingestion-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: venueops-ingestion-api
+  template:
+    metadata:
+      labels:
+        app: venueops-ingestion-api
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: kl-worker-1
+      containers:
+        - name: ingestion-api
+          image: moonarrv007/venueops-ingestion-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: APP_ENV
+              value: "local"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: MESSAGE_MODE
+              value: "local"
+            - name: DATABASE_MODE
+              value: "sqlite"
+            - name: DATABASE_URL
+              value: "sqlite:////data/db/venueops.db"
+            - name: DATA_DIR
+              value: "/data"
+            - name: MOCK_EVENTHUB_QUEUE
+              value: "/data/queues/device_logs.jsonl"
+          volumeMounts:
+            - name: venueops-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      volumes:
+        - name: venueops-data
+          persistentVolumeClaim:
+            claimName: venueops-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: venueops-ingestion-api
+  namespace: venueops
+  labels:
+    app: venueops-ingestion-api
+spec:
+  type: ClusterIP
+  selector:
+    app: venueops-ingestion-api
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+

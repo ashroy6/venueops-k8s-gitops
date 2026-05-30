@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: venueops-web
+  namespace: venueops
+  labels:
+    app: venueops-web
+spec:
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+
+  selector:
+    matchLabels:
+      app: venueops-web
+
+  template:
+    metadata:
+      labels:
+        app: venueops-web
+
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: worker
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: venueops-web
+              topologyKey: kubernetes.io/hostname
+
+      containers:
+        - name: web
+          image: moonarrv007/venueops-web:kube-v2
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+              name: http
+
+          readinessProbe:
+            httpGet:
+              path: /health.html
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+              path: /health.html
+              port: 80
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: venueops-web
+  namespace: venueops
+  labels:
+    app: venueops-web
+spec:
+  type: ClusterIP
+  selector:
+    app: venueops-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

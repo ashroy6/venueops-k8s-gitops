@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: venueops-api
+  namespace: venueops
+  labels:
+    app: venueops-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: venueops-api
+  template:
+    metadata:
+      labels:
+        app: venueops-api
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: kl-worker-1
+      containers:
+        - name: api
+          image: moonarrv007/venueops-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: APP_ENV
+              value: "local"
+            - name: LOG_LEVEL
+              value: "INFO"
+            - name: MESSAGE_MODE
+              value: "local"
+            - name: DATABASE_MODE
+              value: "sqlite"
+            - name: DATABASE_URL
+              value: "sqlite:////data/db/venueops.db"
+            - name: DATA_DIR
+              value: "/data"
+            - name: MOCK_SERVICEBUS_QUEUE
+              value: "/data/queues/jobs.jsonl"
+            - name: AUDIT_LOG_PATH
+              value: "/data/audit/audit.jsonl"
+          volumeMounts:
+            - name: venueops-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      volumes:
+        - name: venueops-data
+          persistentVolumeClaim:
+            claimName: venueops-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: venueops-api
+  namespace: venueops
+  labels:
+    app: venueops-api
+spec:
+  type: ClusterIP
+  selector:
+    app: venueops-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+

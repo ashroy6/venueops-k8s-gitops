@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: venueops-ingress
+  namespace: venueops
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: venueops.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: venueops-web
+                port:
+                  number: 80
+
+    - host: api.venueops.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: venueops-api
+                port:
+                  number: 8000
+
+    - host: ingestion.venueops.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: venueops-ingestion-api
+                port:
+                  number: 8001

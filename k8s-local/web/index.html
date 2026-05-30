@@ -1,0 +1,1755 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>VenueOps Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #08111f;
+      --panel2: #0b1220;
+      --panel3: #0f172a;
+      --panel4: #111827;
+
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --muted2: #64748b;
+
+      --blue: #2563eb;
+      --blue2: #38bdf8;
+      --blue-soft: rgba(37, 99, 235, 0.16);
+
+      --green: #22c55e;
+      --green-soft: rgba(34, 197, 94, 0.14);
+
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.15);
+
+      --purple: #7c3aed;
+      --purple-soft: rgba(124, 58, 237, 0.16);
+
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.30);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(37, 99, 235, 0.18), transparent 32%),
+        radial-gradient(circle at 85% 0%, rgba(124, 58, 237, 0.12), transparent 30%),
+        linear-gradient(180deg, #020617 0%, #07111f 48%, #020617 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 18px 24px 14px;
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.96));
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .title-wrap {
+      min-width: 320px;
+    }
+
+    h1 {
+      margin: 0 0 5px;
+      font-size: 24px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 13px;
+    }
+
+    .top-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .system-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .system-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.45);
+    }
+
+    main {
+      padding: 14px 22px 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(145px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.97), rgba(8, 17, 31, 0.98));
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-card {
+      min-height: 86px;
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      background: rgba(37, 99, 235, 0.12);
+      color: #60a5fa;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .icon-box.green {
+      border-color: rgba(34, 197, 94, 0.24);
+      background: rgba(34, 197, 94, 0.10);
+      color: #4ade80;
+    }
+
+    .icon-box.amber {
+      border-color: rgba(245, 158, 11, 0.34);
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+    }
+
+    .queue-card {
+      border-color: rgba(245, 158, 11, 0.42);
+      background:
+        linear-gradient(180deg, rgba(24, 19, 9, 0.98), rgba(11, 18, 32, 0.98));
+    }
+
+    .card h2 {
+      font-size: 13px;
+      margin: 0 0 7px;
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+
+    .metric {
+      font-size: 27px;
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: #ffffff;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .incident-banner {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 13px;
+      border-radius: 14px;
+      border: 1px solid rgba(245, 158, 11, 0.40);
+      background:
+        linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(15, 23, 42, 0.94));
+      box-shadow: var(--shadow);
+    }
+
+    .incident-banner.healthy {
+      border-color: rgba(34, 197, 94, 0.34);
+      background:
+        linear-gradient(135deg, rgba(34, 197, 94, 0.13), rgba(15, 23, 42, 0.94));
+    }
+
+    .incident-banner.resolved {
+      border-color: rgba(56, 189, 248, 0.34);
+      background:
+        linear-gradient(135deg, rgba(56, 189, 248, 0.13), rgba(15, 23, 42, 0.94));
+    }
+
+    .incident-label {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.36);
+      color: #fbbf24;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .incident-banner.healthy .incident-label {
+      background: rgba(34, 197, 94, 0.16);
+      border-color: rgba(34, 197, 94, 0.34);
+      color: #86efac;
+    }
+
+    .incident-banner.resolved .incident-label {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: rgba(56, 189, 248, 0.34);
+      color: #7dd3fc;
+    }
+
+    .incident-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #ffffff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .incident-meta {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .incident-warning {
+      color: #fbbf24;
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .section-card {
+      padding: 12px 14px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 9px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+
+    .section-icon {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: rgba(37, 99, 235, 0.14);
+      border: 1px solid rgba(96, 165, 250, 0.20);
+      color: #60a5fa;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 3px;
+    }
+
+    button {
+      background:
+        linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #eff6ff;
+      border: 1px solid rgba(96, 165, 250, 0.45);
+      border-radius: 9px;
+      padding: 8px 12px;
+      margin: 3px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(37, 99, 235, 0.22);
+      transition: transform 0.15s ease, filter 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(17, 24, 39, 0.96));
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+      box-shadow: none;
+    }
+
+    button.warn {
+      background:
+        linear-gradient(135deg, #b45309, #92400e);
+      color: #fff7ed;
+      border: 1px solid rgba(251, 191, 36, 0.36);
+      box-shadow: 0 10px 28px rgba(245, 158, 11, 0.14);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.14);
+      color: #93c5fd;
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      margin: 3px 0 0 5px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .aiops-panel {
+      border-color: rgba(56, 189, 248, 0.34);
+      background:
+        linear-gradient(180deg, rgba(8, 20, 38, 0.98), rgba(8, 17, 31, 0.98));
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1.15fr 1.15fr 0.95fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 9px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .mini-button {
+      padding: 5px 8px;
+      margin: 0;
+      font-size: 11px;
+      border-radius: 8px;
+      box-shadow: none;
+    }
+
+    pre {
+      background:
+        linear-gradient(180deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.92));
+      border: 1px solid var(--border);
+      padding: 13px;
+      border-radius: 12px;
+      overflow: auto;
+      min-height: 120px;
+      max-height: 520px;
+      white-space: pre-wrap;
+      line-height: 1.48;
+      color: #e2e8f0;
+      font-size: 12px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .summary {
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      color: #e5e7eb;
+      font-size: 13px;
+    }
+
+    #apiHealth,
+    #ingestionHealth,
+    #aiopsHealth {
+      color: var(--green);
+      text-shadow: 0 0 18px rgba(34, 197, 94, 0.25);
+    }
+
+    #queueBacklog {
+      color: #fbbf24;
+      text-shadow: 0 0 18px rgba(251, 191, 36, 0.25);
+    }
+
+    #aiopsOutput,
+    #aiopsHuman {
+      color: #dbeafe;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 9px 2px 0;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid rgba(30, 41, 59, 0.8);
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    .legend-dot.warn { background: var(--amber); }
+    .legend-dot.err { background: var(--red); }
+
+    @media (max-width: 1500px) {
+      main {
+        padding: 14px 18px 18px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      }
+
+      .three-col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .three-col .card:last-child {
+        grid-column: 1 / -1;
+      }
+
+      pre {
+        max-height: 455px;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      header {
+        padding: 16px 18px;
+      }
+
+      .topbar {
+        display: block;
+      }
+
+      .top-meta {
+        margin-top: 10px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      main {
+        padding: 14px;
+      }
+
+      .incident-banner {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .incident-title,
+      .incident-meta,
+      .incident-warning {
+        white-space: normal;
+      }
+
+      .three-col {
+        grid-template-columns: 1fr;
+      }
+
+      .three-col .card:last-child {
+        grid-column: auto;
+      }
+
+      pre {
+        max-height: 420px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-card {
+        grid-template-columns: 32px 1fr;
+      }
+
+      button {
+        width: 100%;
+        margin: 5px 0;
+      }
+
+      .pill {
+        border-radius: 12px;
+        margin-left: 0;
+      }
+
+      .footer-row {
+        display: block;
+      }
+
+      .legend {
+        margin-top: 8px;
+      }
+    }
+
+    /* --- syntax highlighting / summary highlighting --- */
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    .three-col {
+      grid-template-columns: 0.95fr 1.10fr 1.10fr;
+    }
+
+    .tok-key {
+      color: #93c5fd;
+      font-weight: 700;
+    }
+
+    .tok-string {
+      color: #e2e8f0;
+    }
+
+    .tok-number {
+      color: #c4b5fd;
+    }
+
+    .tok-bool {
+      color: #f9a8d4;
+      font-weight: 700;
+    }
+
+    .tok-null {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .tok-good {
+      color: #22c55e;
+      font-weight: 700;
+    }
+
+    .tok-warn {
+      color: #f59e0b;
+      font-weight: 700;
+    }
+
+    .tok-bad {
+      color: #ef4444;
+      font-weight: 700;
+    }
+
+    .tok-accent {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .sum-section {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .sum-label {
+      color: #93c5fd;
+      font-weight: 700;
+    }
+
+    .sum-bullet {
+      color: #38bdf8;
+      font-weight: 800;
+    }
+
+    .sum-divider {
+      color: #334155;
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>VenueOps Admin Dashboard</h1>
+        <p>Operations view for workloads, queue backlog, AI Ops incident analysis, remediation runbooks, verification, and audit.</p>
+      </div>
+      <div class="top-meta">
+        <div class="system-pill">
+          <span class="system-dot"></span>
+          <span>Local demo environment</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card metric-card">
+        <div class="icon-box">⌖</div>
+        <div>
+          <h2>Venues</h2>
+          <div class="metric" id="venues">-</div>
+          <div class="muted">Configured physical locations</div>
+        </div>
+      </div>
+
+      <div class="card metric-card">
+        <div class="icon-box">▣</div>
+        <div>
+          <h2>Devices</h2>
+          <div class="metric" id="devices">-</div>
+          <div class="muted">In-venue devices</div>
+        </div>
+      </div>
+
+      <div class="card metric-card">
+        <div class="icon-box green">ok</div>
+        <div>
+          <h2>Backend API</h2>
+          <div class="metric" id="apiHealth">-</div>
+          <div class="muted">Business API health</div>
+        </div>
+      </div>
+
+      <div class="card metric-card">
+        <div class="icon-box green">ok</div>
+        <div>
+          <h2>Ingestion API</h2>
+          <div class="metric" id="ingestionHealth">-</div>
+          <div class="muted">Device log API health</div>
+        </div>
+      </div>
+
+      <div class="card metric-card">
+        <div class="icon-box green">ok</div>
+        <div>
+          <h2>AI Ops</h2>
+          <div class="metric" id="aiopsHealth">-</div>
+          <div class="muted">Incident analysis service</div>
+        </div>
+      </div>
+
+      <div class="card metric-card">
+        <div class="icon-box">☷</div>
+        <div>
+          <h2>Total Jobs Queued</h2>
+          <div class="metric" id="totalJobsQueued">-</div>
+          <div class="muted">Historical jobs submitted</div>
+        </div>
+      </div>
+
+      <div class="card metric-card queue-card">
+        <div class="icon-box amber">!</div>
+        <div>
+          <h2>Current Jobs in Queue</h2>
+          <div class="metric" id="queueBacklog">-</div>
+          <div class="muted" id="queueBacklogMeta">Live pending jobs / backlog</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="incident-banner healthy" id="activeIncidentBanner">
+      <div class="incident-label" id="incidentBannerLabel">Healthy</div>
+      <div class="incident-title" id="incidentBannerTitle">No active AI Ops incident</div>
+      <div class="incident-meta" id="incidentBannerRunbook">Runbook: not required</div>
+      <div class="incident-warning" id="incidentBannerSeverity">Severity: none</div>
+      <button class="secondary" onclick="refreshLatestIncident()">Refresh</button>
+    </section>
+
+    <section class="card section-card">
+      <div class="section-title">
+        <span class="section-icon">↯</span>
+        <span>Operational Test Actions</span>
+      </div>
+      <div class="action-row">
+        <button onclick="sendDeviceLog()">Send Log</button>
+        <button onclick="sendSmsJob()">SMS Job</button>
+        <button onclick="sendEmailJob()">Email Job</button>
+        <button onclick="sendVideoJob()">Video Job</button>
+        <button class="warn" onclick="generateQueueLoad()">Queue Load x10</button>
+        <button class="warn" onclick="deployBadApiRelease()">Bad API Release</button>
+        <button class="warn" onclick="markCameraOffline()">Camera Offline</button>
+        <button class="warn" onclick="generateApi5xxTraffic()">API 5xx Traffic</button>
+        <button class="secondary" onclick="loadAudit()">Audit Logs</button>
+        <button class="secondary" onclick="loadStatus()">Refresh</button>
+        <div class="pill">Orange buttons create controlled incidents. Prometheus alerts trigger AI Ops. Remediation runs only through approved runbooks.</div>
+      </div>
+    </section>
+
+    <section class="card section-card aiops-panel">
+      <div class="section-title">
+        <span class="section-icon">♙</span>
+        <span>AI Ops Workflow</span>
+      </div>
+      <div class="action-row">
+        <button onclick="refreshLatestIncident()">Refresh Latest Incident</button>
+        <button onclick="showRemediationRunbook()">Show Runbook</button>
+        <button class="warn" onclick="approveAndRunRemediation()">Approve & Run</button>
+        <button class="secondary" onclick="loadAiOpsAudit()">AI Ops Audit</button>
+        <button class="secondary" onclick="closeLatestIncident()">Close Incident</button>
+        <div class="pill">Incident → Runbook → Approval → Safe local remediation → Verification → Audit</div>
+      </div>
+    </section>
+
+    
+    <section class="three-col">
+      <div class="card">
+        <div class="panel-head">
+          <h2><span class="section-icon">▤</span>Output / System Status</h2>
+          <div class="panel-actions">
+            <button class="secondary mini-button" type="button">Copy</button>
+          </div>
+        </div>
+        <pre id="output">Loading status...</pre>
+      </div>
+
+      <div class="card aiops-panel">
+        <div class="panel-head">
+          <h2><span class="section-icon">☷</span>AI Ops Human Summary</h2>
+          <div class="panel-actions">
+            <button class="secondary mini-button" type="button">Live</button>
+          </div>
+        </div>
+        <pre id="aiopsHuman" class="summary">Generate queue load, wait for Alertmanager, then refresh latest incident. Total Jobs Queued should increase; Current Jobs in Queue should rise and later drop after remediation.</pre>
+      </div>
+
+      <div class="card aiops-panel">
+        <div class="panel-head">
+          <h2><span class="section-icon">{}</span>AI Ops Raw JSON</h2>
+          <div class="panel-actions">
+            <button class="secondary mini-button" type="button">Copy</button>
+            <button class="secondary mini-button" type="button">Download</button>
+          </div>
+        </div>
+        <pre id="aiopsOutput">AI Ops ready.</pre>
+      </div>
+    </section>
+
+
+    <section class="footer-row">
+      <div id="lastUpdated">Last updated: local dashboard</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot"></span>OK</span>
+        <span class="legend-item"><span class="legend-dot warn"></span>Warning</span>
+        <span class="legend-item"><span class="legend-dot err"></span>Error</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "/api";
+    const INGESTION_BASE = "/ingestion";
+    const AIOPS_BASE = "/aiops";
+
+    let latestIncident = null;
+    let lastRecommendedRunbook = null;
+    let lastRunbookDetails = null;
+    let latestIncidentStatusKey = "";
+    let incidentPollTimer = null;
+
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function semanticClass(value, fallbackClass = "tok-string") {
+      const v = String(value).toLowerCase();
+
+      const good = new Set([
+        "ok", "approved", "healthy", "active", "verified", "success",
+        "operational", "live", "true", "yes", "resolved", "closed"
+      ]);
+
+      const warn = new Set([
+        "warning", "warn", "medium", "pending"
+      ]);
+
+      const bad = new Set([
+        "error", "failed", "offline", "false", "breached", "critical", "down"
+      ]);
+
+      if (good.has(v)) return "tok-good";
+      if (warn.has(v)) return "tok-warn";
+      if (bad.has(v)) return "tok-bad";
+
+      if (
+        v.includes("queuebackloghigh") ||
+        v.includes("deviceoffline") ||
+        v.includes("api5xx") ||
+        v.includes("investigate_") ||
+        v.includes("rollback_")
+      ) {
+        return "tok-accent";
+      }
+
+      return fallbackClass;
+    }
+
+    function highlightWords(text) {
+      let out = text;
+
+      out = out.replace(/\b(ok|approved|healthy|active|verified|success|operational|live|resolved|closed|yes|true)\b/gi, (m) => {
+        return `<span class="tok-good">${m}</span>`;
+      });
+
+      out = out.replace(/\b(warning|warn|medium|pending)\b/gi, (m) => {
+        return `<span class="tok-warn">${m}</span>`;
+      });
+
+      out = out.replace(/\b(error|failed|offline|breached|critical|down|no|false)\b/gi, (m) => {
+        return `<span class="tok-bad">${m}</span>`;
+      });
+
+      out = out.replace(/\b(QueueBacklogHigh|DeviceOffline|Api5xxFaultActive|investigate_provider_failure|investigate_device_connectivity|rollback_release|scale_ingestion_api)\b/g, (m) => {
+        return `<span class="tok-accent">${m}</span>`;
+      });
+
+      return out;
+    }
+
+    function formatJsonHtml(value) {
+      let json = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+      if (json == null) json = "";
+
+      json = escapeHtml(json);
+
+      return json.replace(
+        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+        function (match) {
+          let cls = "tok-number";
+
+          if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+              cls = "tok-key";
+            } else {
+              const raw = match.slice(1, -1);
+              cls = semanticClass(raw, "tok-string");
+            }
+          } else if (/true|false/.test(match)) {
+            cls = semanticClass(match, "tok-bool");
+          } else if (/null/.test(match)) {
+            cls = "tok-null";
+          } else {
+            cls = "tok-number";
+          }
+
+          return '<span class="' + cls + '">' + match + '</span>';
+        }
+      );
+    }
+
+    function formatSummaryHtml(text) {
+      const lines = String(text || "").split("\n");
+
+      return lines.map((line) => {
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+          return "";
+        }
+
+        if (/^-{3,}$/.test(trimmed)) {
+          return `<span class="sum-divider">${escapeHtml(line)}</span>`;
+        }
+
+        if (/^(Incident Status|Problem Identified|Likely Root Cause|Evidence Observed|Risk and Confidence|Recommended Remediation|Next Operator Step|LLM and Audit|Current State|Remediation Runbook|Verification Plan|Verification Checks|Execution Result|Audit|Post-Runbook Verification|Incident Closed)$/i.test(trimmed)) {
+          return `<span class="sum-section">${escapeHtml(line)}</span>`;
+        }
+
+        const labelMatch = line.match(/^([A-Za-z][A-Za-z0-9 /&()_-]+:)(\s*)(.*)$/);
+        if (labelMatch) {
+          const label = escapeHtml(labelMatch[1]);
+          const space = labelMatch[2];
+          const value = highlightWords(escapeHtml(labelMatch[3]));
+          return `<span class="sum-label">${label}</span>${space}${value}`;
+        }
+
+        const bulletMatch = line.match(/^\s*-\s+(.*)$/);
+        if (bulletMatch) {
+          const value = highlightWords(escapeHtml(bulletMatch[1]));
+          return `<span class="sum-bullet">•</span> ${value}`;
+        }
+
+        return highlightWords(escapeHtml(line));
+      }).join("\n");
+    }
+
+
+    function show(obj) {
+      document.getElementById("output").innerHTML = formatJsonHtml(obj);
+    }
+
+    function showAiOps(obj) {
+      document.getElementById("aiopsOutput").innerHTML = formatJsonHtml(obj);
+    }
+
+    function showHuman(text) {
+      document.getElementById("aiopsHuman").innerHTML = formatSummaryHtml(text);
+    }
+
+    function yesNo(value) {
+      const clean = String(value).toLowerCase();
+      return clean === "true" ? "Yes" : "No";
+    }
+
+    function asList(items) {
+      if (!Array.isArray(items) || items.length === 0) {
+        return "- Not provided";
+      }
+      return items.map((item) => `- ${item}`).join("\n");
+    }
+
+    async function safeFetch(url, options = {}, timeoutMs = 5000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const res = await fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+
+        const body = await res.json();
+
+        if (!res.ok) {
+          throw new Error(JSON.stringify(body));
+        }
+
+        return body;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+
+    function updateIncidentBanner(body) {
+      const banner = document.getElementById("activeIncidentBanner");
+      const label = document.getElementById("incidentBannerLabel");
+      const title = document.getElementById("incidentBannerTitle");
+      const runbook = document.getElementById("incidentBannerRunbook");
+      const severity = document.getElementById("incidentBannerSeverity");
+
+      if (!banner || !label || !title || !runbook || !severity) {
+        return;
+      }
+
+      if (!body || !body.analysis) {
+        banner.className = "incident-banner healthy";
+        label.textContent = "Healthy";
+        title.textContent = "No active AI Ops incident";
+        runbook.textContent = "Runbook: not required";
+        severity.textContent = "Severity: none";
+        return;
+      }
+
+      const analysis = body.analysis || {};
+      const lifecycle = body.lifecycle_status || "active";
+      const resolved = Boolean(body.resolved);
+      const recommendedRunbook = analysis.recommended_runbook || "not provided";
+      const riskLevel = analysis.risk_level || "unknown";
+      const confidence = analysis.confidence || "unknown";
+
+      if (resolved || lifecycle === "resolved" || lifecycle === "closed") {
+        banner.className = "incident-banner resolved";
+        label.textContent = "Resolved";
+      } else {
+        banner.className = "incident-banner";
+        label.textContent = "Active Incident";
+      }
+
+      title.textContent = analysis.incident_summary || "AI Ops incident detected";
+      runbook.textContent = `Runbook: ${recommendedRunbook}`;
+      severity.textContent = `Risk: ${riskLevel} | Confidence: ${confidence}`;
+    }
+
+
+    function renderAiOpsSummary(body) {
+      const analysis = body && body.analysis ? body.analysis : null;
+
+      if (!analysis) {
+        showHuman("No AI Ops analysis found. Wait for Alertmanager to trigger or refresh again.");
+        return;
+      }
+
+      const runbook = analysis.recommended_runbook_details || {};
+      const evidence = analysis.evidence || {};
+      const llm = analysis.llm_status || {};
+      const audit = body.audit || {};
+      const remediation = body.remediation || {};
+      const executionResult = remediation.execution_result || {};
+      const verification = body.verification || {};
+      const checks = Array.isArray(verification.checks) ? verification.checks : [];
+
+      const lifecycleStatus = body.lifecycle_status || "active";
+      const resolved = Boolean(body.resolved);
+
+      const passedChecks = checks.filter((check) => String(check.status).toLowerCase() === "passed").length;
+      const failedChecks = checks.filter((check) => String(check.status).toLowerCase() === "failed").length;
+      const totalChecks = checks.length;
+
+      const verificationLines = checks.length
+        ? checks.map((check) => `- ${check.name}: ${check.status || "unknown"}`).join("\n")
+        : "- Verification has not run yet.";
+
+      const failedLines = checks
+        .filter((check) => String(check.status).toLowerCase() === "failed")
+        .map((check) => `- ${check.name}: ${check.status || "unknown"}`)
+        .join("\n");
+
+      lastRecommendedRunbook = analysis.recommended_runbook || null;
+      lastRunbookDetails = runbook || null;
+
+      const summary = [
+        "Incident Status",
+        "---------------",
+        `Lifecycle: ${lifecycleStatus}`,
+        `Resolved: ${resolved ? "Yes" : "No"}`,
+        "",
+        "Problem Identified",
+        "------------------",
+        analysis.incident_summary || "No summary provided.",
+        "",
+        "Likely Root Cause",
+        "-----------------",
+        analysis.likely_root_cause || "No root cause provided.",
+        "",
+        "Evidence Observed",
+        "-----------------",
+        asList(evidence.symptoms),
+        "",
+        "Risk and Confidence",
+        "-------------------",
+        `Risk level: ${analysis.risk_level || "unknown"}`,
+        `Confidence: ${analysis.confidence || "unknown"}`,
+        `Approval required: ${yesNo(analysis.approval_required)}`,
+        "",
+        "Recommended Remediation",
+        "-----------------------",
+        `Runbook found: ${runbook.name || analysis.recommended_runbook || "not provided"}`,
+        `Runbook ID: ${analysis.recommended_runbook || "not provided"}`,
+        "",
+        "Execution Result",
+        "----------------",
+        remediation.runbook_id
+          ? `Executed runbook: ${remediation.runbook_id}`
+          : "Executed runbook: not executed yet",
+        `Execution mode: ${remediation.execution_mode || "not executed yet"}`,
+        `Execution status: ${executionResult.status || "not executed yet"}`,
+        executionResult.message || "No execution message available yet.",
+        "",
+        "Post-Runbook Verification",
+        "-------------------------",
+        `Verification status: ${verification.status || "not run"}`,
+        `Resolved after verification: ${resolved ? "Yes" : "No"}`,
+        `Lifecycle after verification: ${lifecycleStatus}`,
+        `Checks passed: ${passedChecks}/${totalChecks}`,
+        `Checks failed: ${failedChecks}/${totalChecks}`,
+        verification.summary || "No verification summary available yet.",
+        "",
+        "Failed Verification Checks",
+        "--------------------------",
+        failedChecks > 0 ? failedLines : "- None",
+        "",
+        "Verification Checks",
+        "-------------------",
+        verificationLines,
+        "",
+        "Next Operator Step",
+        "------------------",
+        resolved && failedChecks === 0
+          ? "Incident has been remediated and verifier checks passed. Review audit or close the incident."
+          : verification.status === "failed"
+            ? "Verifier failed one or more checks. Review failed checks before closing the incident."
+            : "Click “Show Runbook” to review remediation, then approve and run.",
+        "",
+        "LLM and Audit",
+        "-------------",
+        `LLM called: ${llm.called ? "Yes" : "No"}`,
+        `LLM accepted: ${llm.accepted ? "Yes" : "No"}`,
+        `Fallback used: ${llm.fallback_used ? "Yes" : "No"}`,
+        `Model: ${llm.model || "not used / unavailable"}`,
+        `Audit event: ${audit.event_type || "not provided"}`,
+        `Audit time: ${audit.timestamp || "not provided"}`
+      ].join("\n");
+
+      showHuman(summary);
+    }
+
+    function renderRunbookDetails(runbook) {
+      if (!runbook || !runbook.id) {
+        showHuman("No approved remediation runbook is available for this incident.");
+        return;
+      }
+
+      const summary = [
+        "Remediation Runbook",
+        "-------------------",
+        `Name: ${runbook.name || runbook.id}`,
+        `Runbook ID: ${runbook.id}`,
+        `Risk: ${runbook.risk || "unknown"}`,
+        `Approval required: ${yesNo(runbook.approval_required)}`,
+        "",
+        "Why this runbook",
+        "----------------",
+        runbook.description || "No description provided.",
+        "",
+        "Steps Planned",
+        "-------------",
+        asList(runbook.steps),
+        "",
+        "Verification Plan",
+        "-----------------",
+        asList(runbook.verification_steps),
+        "",
+        "Next Operator Step",
+        "------------------",
+        "If the steps look safe, click “Approve & Run Remediation”. Local demo remediation will drain the mock queue backlog, then run verification checks."
+      ].join("\n");
+
+      showHuman(summary);
+    }
+
+    function renderApprovalSummary(body) {
+      const runbook = body.runbook || {};
+      const result = body.execution_result || {};
+      const audit = body.audit || {};
+      const verification = body.verification || {};
+      const incident = body.incident || {};
+      const checks = Array.isArray(verification.checks) ? verification.checks : [];
+
+      const passedChecks = checks.filter((check) => String(check.status).toLowerCase() === "passed").length;
+      const failedChecks = checks.filter((check) => String(check.status).toLowerCase() === "failed").length;
+      const totalChecks = checks.length;
+
+      const verificationStatus = verification.status || "not run";
+      const resolved = Boolean(incident.resolved);
+      const lifecycle = incident.lifecycle_status || "updated";
+
+      const verificationLines = checks.length
+        ? checks.map((check) => {
+            const status = check.status || "unknown";
+            return `- ${check.name}: ${status}`;
+          }).join("\n")
+        : "- Verification was not run.";
+
+      const failedLines = checks
+        .filter((check) => String(check.status).toLowerCase() === "failed")
+        .map((check) => `- ${check.name}: ${check.status}`)
+        .join("\n");
+
+      const summary = [
+        "Incident Lifecycle",
+        "------------------",
+        `Lifecycle: ${lifecycle}`,
+        `Resolved: ${resolved ? "Yes" : "No"}`,
+        incident.resolved_at ? `Resolved at: ${incident.resolved_at}` : "Resolved at: not set",
+        "",
+        "Remediation Executed",
+        "--------------------",
+        `Runbook: ${runbook.name || runbook.id || "unknown"}`,
+        `Runbook ID: ${runbook.id || "unknown"}`,
+        `Risk: ${runbook.risk || "unknown"}`,
+        `Execution mode: ${body.execution_mode || "unknown"}`,
+        `Execution status: ${result.status || "unknown"}`,
+        result.message || "No execution message provided.",
+        "",
+        "Verification Result",
+        "-------------------",
+        `Verification status: ${verificationStatus}`,
+        `Resolved after verification: ${resolved ? "Yes" : "No"}`,
+        `Lifecycle after verification: ${lifecycle}`,
+        `Checks passed: ${passedChecks}/${totalChecks}`,
+        `Checks failed: ${failedChecks}/${totalChecks}`,
+        verification.summary || "No verification summary provided.",
+        "",
+        failedChecks > 0 ? "Failed Verification Checks" : "Failed Verification Checks",
+        "--------------------------",
+        failedChecks > 0 ? failedLines : "- None",
+        "",
+        "Verification Checks",
+        "-------------------",
+        verificationLines,
+        "",
+        "Operator Meaning",
+        "----------------",
+        resolved && failedChecks === 0
+          ? "The incident was remediated and verifier checks passed. The system marked it verified_resolved."
+          : "The runbook executed, but one or more verifier checks did not pass. The incident should not be treated as fully resolved.",
+        "",
+        "Audit",
+        "-----",
+        `Audit event: ${audit.event_type || "not provided"}`,
+        `Audit time: ${audit.timestamp || "not provided"}`
+      ].join("\n");
+
+      showHuman(summary);
+    }
+
+    async function closeLatestIncident() {
+      try {
+        const body = await safeFetch(`${AIOPS_BASE}/incidents/close?closed_by=admin-demo`, {
+          method: "POST"
+        });
+
+        showHuman([
+          "Incident Closed",
+          "---------------",
+          `Lifecycle: ${body.incident?.lifecycle_status || "closed"}`,
+          `Closed by: ${body.incident?.closed_by || "admin-demo"}`,
+          `Closed at: ${body.incident?.closed_at || "not provided"}`,
+          "",
+          "Audit",
+          "-----",
+          `Audit event: ${body.audit?.event_type || "not provided"}`,
+          `Audit time: ${body.audit?.timestamp || "not provided"}`
+        ].join("\n"));
+
+        updateIncidentBanner(null);
+        showAiOps(body);
+      } catch (err) {
+        showHuman("Failed to close latest incident.");
+        showAiOps({ error: String(err) });
+      }
+    }
+
+
+    async function loadStatus() {
+      const get = async (name, url, timeoutMs = 5000) => {
+        try {
+          return { name, ok: true, data: await safeFetch(url, {}, timeoutMs) };
+        } catch (err) {
+          return { name, ok: false, error: String(err) };
+        }
+      };
+
+      const results = await Promise.all([
+        get("api", `${API_BASE}/health`, 5000),
+        get("ingestion", `${INGESTION_BASE}/health`, 5000),
+        get("aiops", `${AIOPS_BASE}/health`, 5000),
+        get("venues", `${API_BASE}/venues`, 5000),
+        get("devices", `${API_BASE}/devices`, 5000),
+        get("backlog", `${API_BASE}/ops/backlog`, 5000),
+        get("api_fault", `${API_BASE}/ops/faults/api-5xx/status`, 5000),
+        get("device_offline", `${API_BASE}/ops/devices/offline/status`, 5000),
+
+        // /jobs can grow large during demos, so give it longer and only use count.
+        get("jobs", `${API_BASE}/jobs`, 12000)
+      ]);
+
+      const byName = Object.fromEntries(results.map((item) => [item.name, item]));
+
+      const apiHealth = byName.api.ok ? byName.api.data : { status: "down", error: byName.api.error };
+      const ingestionHealth = byName.ingestion.ok ? byName.ingestion.data : { status: "down", error: byName.ingestion.error };
+      const aiopsHealth = byName.aiops.ok ? byName.aiops.data : { status: "down", error: byName.aiops.error };
+
+      const venues = byName.venues.ok ? byName.venues.data : { items: [] };
+      const devices = byName.devices.ok ? byName.devices.data : { items: [] };
+      const jobs = byName.jobs.ok ? byName.jobs.data : { items: [] };
+
+      const backlog = byName.backlog.ok ? byName.backlog.data : {
+        queue_backlog: "-",
+        threshold: "-",
+        breached: "unknown",
+        error: byName.backlog.error
+      };
+
+      const apiFault = byName.api_fault.ok ? byName.api_fault.data : {
+        api_fault_active: "unknown",
+        api_fault_reason: "",
+        error: byName.api_fault.error
+      };
+
+      const deviceOffline = byName.device_offline.ok ? byName.device_offline.data : {
+        healthy: "unknown",
+        offline_devices: "unknown",
+        offline_device_id: "",
+        error: byName.device_offline.error
+      };
+
+      const totalJobsQueued = Array.isArray(jobs.items) ? jobs.items.length : 0;
+
+      document.getElementById("apiHealth").textContent = apiHealth.status || "down";
+      document.getElementById("ingestionHealth").textContent = ingestionHealth.status || "down";
+      document.getElementById("aiopsHealth").textContent = aiopsHealth.status || "down";
+      document.getElementById("venues").textContent = Array.isArray(venues.items) ? venues.items.length : 0;
+      document.getElementById("devices").textContent = Array.isArray(devices.items) ? devices.items.length : 0;
+      document.getElementById("totalJobsQueued").textContent = totalJobsQueued;
+      document.getElementById("queueBacklog").textContent = backlog.queue_backlog;
+      document.getElementById("queueBacklogMeta").textContent = `Threshold: ${backlog.threshold} | Alert active: ${backlog.breached}`;
+
+      const lastUpdated = document.getElementById("lastUpdated");
+      if (lastUpdated) {
+        lastUpdated.textContent = `Last updated: ${new Date().toLocaleString()}`;
+      }
+
+      show({
+        status: "dashboard_loaded",
+        services: {
+          backend_api: {
+            status: apiHealth.status || "down",
+            service: apiHealth.service || "backend-api",
+            database_mode: apiHealth.database_mode || "unknown"
+          },
+          ingestion_api: {
+            status: ingestionHealth.status || "down",
+            service: ingestionHealth.service || "device-ingestion-api"
+          },
+          aiops: {
+            status: aiopsHealth.status || "down",
+            service: aiopsHealth.service || "aiops",
+            llm_provider: aiopsHealth.llm_provider || "unknown",
+            ollama_model: aiopsHealth.ollama_model || "unknown"
+          }
+        },
+        totals: {
+          venues: Array.isArray(venues.items) ? venues.items.length : 0,
+          devices: Array.isArray(devices.items) ? devices.items.length : 0,
+          total_jobs_queued: totalJobsQueued,
+          current_jobs_in_queue: backlog.queue_backlog,
+          queue_threshold: backlog.threshold,
+          queue_alert_active: backlog.breached,
+          api_fault_active: apiFault.api_fault_active,
+          api_fault_reason: apiFault.api_fault_reason || "",
+          devices_healthy: deviceOffline.healthy,
+          offline_devices: deviceOffline.offline_devices,
+          offline_device_id: deviceOffline.offline_device_id || ""
+        },
+        scenarios: {
+          queue_backlog: {
+            active: backlog.breached,
+            current_jobs_in_queue: backlog.queue_backlog,
+            threshold: backlog.threshold
+          },
+          api_5xx_fault: {
+            active: apiFault.api_fault_active,
+            reason: apiFault.api_fault_reason || ""
+          },
+          device_offline: {
+            active: deviceOffline.healthy === false || Number(deviceOffline.offline_devices || 0) > 0,
+            healthy: deviceOffline.healthy,
+            offline_devices: deviceOffline.offline_devices,
+            offline_device_id: deviceOffline.offline_device_id || ""
+          }
+        },
+        endpoint_checks: results.map((item) => ({
+          name: item.name,
+          ok: item.ok,
+          error: item.ok ? null : item.error
+        }))
+      });
+    }
+
+    async function sendDeviceLog() {
+      const payload = {
+        venue_id: "venue-london-001",
+        device_id: "camera-01",
+        level: "INFO",
+        event_type: "video_uploaded",
+        message: "Sample video uploaded from in-venue camera",
+        metadata: { demo: true }
+      };
+
+      try {
+        const body = await safeFetch(`${INGESTION_BASE}/ingest/logs`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function sendSmsJob() {
+      const payload = {
+        guest_id: "guest-001",
+        phone_number: "+440000000000",
+        message: "Your in-game moment is ready."
+      };
+
+      try {
+        const body = await safeFetch(`${API_BASE}/notifications/sms`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function sendEmailJob() {
+      const payload = {
+        guest_id: "guest-001",
+        email: "guest@example.com",
+        subject: "Your video is ready",
+        body: "Your in-game moment is ready to view."
+      };
+
+      try {
+        const body = await safeFetch(`${API_BASE}/notifications/email`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function sendVideoJob() {
+      const payload = {
+        venue_id: "venue-london-001",
+        source_blob: "landing/sample-video.mp4",
+        requested_by: "admin-demo"
+      };
+
+      try {
+        const body = await safeFetch(`${API_BASE}/videos/process`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function generateQueueLoad() {
+      try {
+        showHuman("Generating queue load. Prometheus and Alertmanager will trigger AI Ops automatically. The incident panel auto-refreshes every 5 seconds.");
+        const body = await safeFetch(`${API_BASE}/ops/load/queue`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ count: 10, job_type: "send_sms" })
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    function incidentKey(body) {
+      if (!body || !body.analysis) {
+        return body && body.status ? body.status : "empty";
+      }
+
+      const auditTime = body.audit && body.audit.timestamp ? body.audit.timestamp : "";
+      const lifecycle = body.lifecycle_status || "active";
+      const runbook = body.analysis.recommended_runbook || "";
+      return `${lifecycle}|${runbook}|${auditTime}`;
+    }
+
+    async function refreshLatestIncidentSilent() {
+      try {
+        const body = await safeFetch(`${AIOPS_BASE}/incidents/latest`);
+        const key = incidentKey(body);
+
+        if (key === latestIncidentStatusKey) {
+          return;
+        }
+
+        latestIncidentStatusKey = key;
+        latestIncident = body;
+        updateIncidentBanner(body);
+        showAiOps(body);
+
+        if (body.analysis) {
+          renderAiOpsSummary(body);
+        } else if (body.status === "empty") {
+          showHuman([
+            "No Active AI Ops Incident",
+            "-------------------------",
+            "Current State",
+            "-------------",
+            "The system is healthy or the latest incident has been closed.",
+            "Generate queue load to trigger a new alert-driven incident."
+          ].join("\n"));
+        }
+      } catch (err) {
+        // Silent polling should not spam the UI during container restarts.
+        console.warn("AI Ops polling failed", err);
+      }
+    }
+
+    function startIncidentPolling() {
+      if (incidentPollTimer) {
+        clearInterval(incidentPollTimer);
+      }
+
+      incidentPollTimer = setInterval(refreshLatestIncidentSilent, 5000);
+    }
+
+
+    async function refreshLatestIncident() {
+      try {
+        const body = await safeFetch(`${AIOPS_BASE}/incidents/latest`);
+        latestIncident = body;
+        updateIncidentBanner(body);
+        showAiOps(body);
+
+        if (body.analysis) {
+          renderAiOpsSummary(body);
+        } else {
+          showHuman([
+            "No Active AI Ops Incident",
+            "-------------------------",
+            "Current State",
+            "-------------",
+            "The latest incident may have been resolved and closed.",
+            "Use “Load AI Ops Audit” to view historical incidents.",
+            "",
+            "To trigger a new demo incident:",
+            "1. Click Generate Queue Load x10.",
+            "2. Wait for Prometheus and Alertmanager.",
+            "3. Click Refresh Latest AI Ops Incident."
+          ].join("\n"));
+        }
+      } catch (err) {
+        showHuman("Failed to refresh latest AI Ops incident.");
+        showAiOps({ error: String(err) });
+      }
+    }
+
+    async function showRemediationRunbook() {
+      try {
+        if (!lastRecommendedRunbook) {
+          showHuman("No recommended runbook found. Wait for an AI Ops incident or refresh latest incident.");
+          return;
+        }
+
+        if (lastRunbookDetails && lastRunbookDetails.id) {
+          renderRunbookDetails(lastRunbookDetails);
+          showAiOps({ runbook: lastRunbookDetails, source: "cached_incident_runbook_details" });
+          return;
+        }
+
+        showHuman("Loading remediation runbook...");
+        const body = await safeFetch(`${AIOPS_BASE}/runbooks/${lastRecommendedRunbook}`);
+        lastRunbookDetails = body.runbook;
+        renderRunbookDetails(body.runbook);
+        showAiOps(body);
+      } catch (err) {
+        showHuman("Failed to load remediation runbook.");
+        showAiOps({ error: String(err) });
+      }
+    }
+
+    async function approveAndRunRemediation() {
+      if (!lastRecommendedRunbook) {
+        showHuman("No recommended runbook found. Refresh latest incident first.");
+        return;
+      }
+
+      try {
+        const body = await safeFetch(`${AIOPS_BASE}/runbooks/approve`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            runbook_id: lastRecommendedRunbook,
+            approved_by: "admin-demo",
+            execute: true,
+            verify: true
+          })
+        });
+
+        renderApprovalSummary(body);
+        updateIncidentBanner(body.incident ? { analysis: { incident_summary: 'Remediation executed and verification completed', recommended_runbook: body.runbook?.id, risk_level: body.runbook?.risk, confidence: 'verified' }, lifecycle_status: body.incident.lifecycle_status, resolved: body.incident.resolved } : latestIncident);
+        showAiOps(body);
+        await loadStatus();
+      } catch (err) {
+        showHuman("Runbook approval/remediation failed. Check raw JSON.");
+        showAiOps({ error: String(err) });
+      }
+    }
+
+    async function deployBadApiRelease() {
+      try {
+        showHuman("Deploying simulated bad API release. Prometheus and Alertmanager will trigger AI Ops automatically.");
+        const body = await safeFetch(`${API_BASE}/ops/faults/api-5xx/enable`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ reason: "simulated bad deployment for AI Ops demo" })
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function markCameraOffline() {
+      try {
+        showHuman("Marking camera-01 offline. Prometheus and Alertmanager will trigger AI Ops automatically.");
+        const body = await safeFetch(`${API_BASE}/ops/devices/offline/mark`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ device_id: "camera-01" })
+        });
+        show(body);
+        await loadStatus();
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function generateApi5xxTraffic() {
+      const results = [];
+      let count500 = 0;
+      let count200 = 0;
+      let countOther = 0;
+
+      showHuman("Generating controlled API 5xx traffic against /ops/test-api. 500 responses are expected when the bad API release is active.");
+
+      for (let i = 0; i < 20; i++) {
+        try {
+          const res = await fetch(`${API_BASE}/ops/test-api`, {
+            method: "GET",
+            cache: "no-store"
+          });
+
+          let body = null;
+          try {
+            body = await res.json();
+          } catch {
+            body = { raw: await res.text() };
+          }
+
+          if (res.status === 500) {
+            count500 += 1;
+          } else if (res.status === 200) {
+            count200 += 1;
+          } else {
+            countOther += 1;
+          }
+
+          results.push({ request: i + 1, status: res.status, body });
+        } catch (err) {
+          countOther += 1;
+          results.push({ request: i + 1, error: String(err) });
+        }
+      }
+
+      show({
+        status: "api_5xx_traffic_generated",
+        message: "Controlled traffic sent to /ops/test-api. HTTP 500 is expected when the simulated bad API release is active.",
+        summary: {
+          total_requests: results.length,
+          http_500_count: count500,
+          http_200_count: count200,
+          other_count: countOther
+        },
+        expected_result: count500 > 0
+          ? "API 5xx fault traffic generated successfully. Prometheus should detect this after the next scrape/evaluation cycle."
+          : "No HTTP 500 responses observed. Enable Bad API Release first, then generate API 5xx traffic again.",
+        results
+      });
+
+      await loadStatus();
+    }
+
+    async function loadAudit() {
+      try {
+        const body = await safeFetch(`${API_BASE}/audit`);
+        show(body);
+      } catch (err) {
+        show({ error: String(err) });
+      }
+    }
+
+    async function loadAiOpsAudit() {
+      try {
+        const body = await safeFetch(`${AIOPS_BASE}/audit`);
+        showHuman("Loaded AI Ops audit trail. Raw JSON shows incident, runbook, approval, remediation, and verification events.");
+        showAiOps(body);
+      } catch (err) {
+        showHuman("Failed to load AI Ops audit trail.");
+        showAiOps({ error: String(err) });
+      }
+    }
+
+    loadStatus();
+    startIncidentPolling();
+    refreshLatestIncidentSilent();
+  </script>
+</body>
+</html>
