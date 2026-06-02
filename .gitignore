@@ -1,0 +1,7 @@
+.vagrant/
+*.bak
+*.tmp
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
