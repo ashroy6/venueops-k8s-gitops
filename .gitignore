@@ -5,3 +5,6 @@
 *.rej
 .DS_Store
 Thumbs.db
+
+*-rendered.yaml
+*.zip

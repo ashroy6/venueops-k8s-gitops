@@ -1,0 +1,102 @@
+namespace:
+  create: true
+  name: venueops
+
+storage:
+  enabled: true
+  pvName: venueops-hostpath-pv
+  pvcName: venueops-data-pvc
+  storageClassName: venueops-hostpath
+  size: 2Gi
+  hostPath: /opt/venueops/data
+
+commonEnv:
+  APP_ENV: local
+  LOG_LEVEL: INFO
+  MESSAGE_MODE: local
+  DATABASE_MODE: sqlite
+  DATABASE_URL: sqlite:////data/db/venueops.db
+  DATA_DIR: /data
+
+api:
+  name: venueops-api
+  replicas: 1
+  image:
+    repository: moonarrv007/venueops-api
+    tag: latest
+    pullPolicy: Always
+  nodeSelector:
+    kubernetes.io/hostname: kl-worker-1
+  port: 8000
+  env:
+    MOCK_SERVICEBUS_QUEUE: /data/queues/jobs.jsonl
+    AUDIT_LOG_PATH: /data/audit/audit.jsonl
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ingestionApi:
+  name: venueops-ingestion-api
+  replicas: 1
+  image:
+    repository: moonarrv007/venueops-ingestion-api
+    tag: latest
+    pullPolicy: Always
+  nodeSelector:
+    kubernetes.io/hostname: kl-worker-1
+  port: 8001
+  env:
+    MOCK_EVENTHUB_QUEUE: /data/queues/device_logs.jsonl
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+web:
+  name: venueops-web
+  replicas: 2
+  image:
+    repository: moonarrv007/venueops-web
+    tag: kube-v2
+    pullPolicy: Always
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+  port: 80
+  antiAffinity: true
+  rollingUpdate:
+    maxSurge: 0
+    maxUnavailable: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+probes:
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 6
+  liveness:
+    initialDelaySeconds: 20
+    periodSeconds: 20
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    web: venueops.local
+    api: api.venueops.local
+    ingestion: ingestion.venueops.local

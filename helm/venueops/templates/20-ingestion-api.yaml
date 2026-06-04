@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.ingestionApi.name }}
+  namespace: {{ include "venueops.namespace" . }}
+  labels:
+    app: {{ .Values.ingestionApi.name }}
+    {{- include "venueops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.ingestionApi.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.ingestionApi.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.ingestionApi.name }}
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.ingestionApi.nodeSelector | nindent 8 }}
+      containers:
+        - name: ingestion-api
+          image: "{{ .Values.ingestionApi.image.repository }}:{{ .Values.ingestionApi.image.tag }}"
+          imagePullPolicy: {{ .Values.ingestionApi.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.ingestionApi.port }}
+              name: http
+          env:
+            {{- range $key, $value := .Values.commonEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range $key, $value := .Values.ingestionApi.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: venueops-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.ingestionApi.port }}
+            {{- toYaml .Values.probes.readiness | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.ingestionApi.port }}
+            {{- toYaml .Values.probes.liveness | nindent 12 }}
+          resources:
+            {{- toYaml .Values.ingestionApi.resources | nindent 12 }}
+      volumes:
+        - name: venueops-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.pvcName }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.ingestionApi.name }}
+  namespace: {{ include "venueops.namespace" . }}
+  labels:
+    app: {{ .Values.ingestionApi.name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.ingestionApi.name }}
+  ports:
+    - name: http
+      port: {{ .Values.ingestionApi.port }}
+      targetPort: {{ .Values.ingestionApi.port }}

@@ -1,0 +1,60 @@
+namespace:
+  create: true
+  name: monitoring
+
+prometheus:
+  enabled: true
+  image: prom/prometheus:v2.55.1
+  serviceAccountName: prometheus
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+  retention: 6h
+  service:
+    type: NodePort
+    port: 9090
+    nodePort: 30090
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+
+grafana:
+  enabled: true
+  image: grafana/grafana:11.3.1
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+  adminUser: admin
+  adminPassword: admin
+  service:
+    type: NodePort
+    port: 3000
+    nodePort: 30300
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+
+nodeExporter:
+  enabled: true
+  image: prom/node-exporter:v1.8.2
+  port: 9100
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+kubeStateMetrics:
+  enabled: true
+  image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
+  port: 8080
+  telemetryPort: 8081
+  replicas: 2
