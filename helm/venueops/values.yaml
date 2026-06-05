@@ -73,6 +73,9 @@ web:
   rollingUpdate:
     maxSurge: 0
     maxUnavailable: 1
+  pdb:
+    enabled: true
+    maxUnavailable: 1
   resources:
     requests:
       cpu: 50m

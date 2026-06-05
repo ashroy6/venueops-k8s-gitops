@@ -1,0 +1,15 @@
+﻿{{- if .Values.web.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.web.name }}-pdb
+  namespace: {{ include "venueops.namespace" . }}
+  labels:
+    app: {{ .Values.web.name }}
+    {{- include "venueops.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.web.pdb.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: {{ .Values.web.name }}
+{{- end }}
