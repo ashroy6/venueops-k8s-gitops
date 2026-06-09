@@ -45,6 +45,9 @@ spec:
             capabilities:
               drop:
                 - ALL
+              add:
+                - CHOWN
+                - NET_BIND_SERVICE
             seccompProfile:
               type: RuntimeDefault
 
