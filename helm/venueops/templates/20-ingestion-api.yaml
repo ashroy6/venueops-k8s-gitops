@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.ingestionApi.name }}
@@ -22,6 +22,19 @@ spec:
         - name: ingestion-api
           image: "{{ .Values.ingestionApi.image.repository }}:{{ .Values.ingestionApi.image.tag }}"
           imagePullPolicy: {{ .Values.ingestionApi.image.pullPolicy }}
+
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+
           ports:
             - containerPort: {{ .Values.ingestionApi.port }}
               name: http
