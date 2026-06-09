@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.web.name }}
@@ -36,6 +36,18 @@ spec:
         - name: web
           image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
           imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+
+          # Partial hardening only.
+          # We are NOT forcing runAsNonRoot yet because the current web image runs as root.
+          # Proper final fix requires rebuilding the web image as non-root.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+
           ports:
             - containerPort: {{ .Values.web.port }}
               name: http
