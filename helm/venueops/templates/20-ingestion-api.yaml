@@ -24,16 +24,7 @@ spec:
           imagePullPolicy: {{ .Values.ingestionApi.image.pullPolicy }}
 
           securityContext:
-            runAsNonRoot: true
-            runAsUser: 999
-            runAsGroup: 999
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-            seccompProfile:
-              type: RuntimeDefault
+            {{- toYaml .Values.ingestionApi.securityContext | nindent 12 }}
 
           ports:
             - containerPort: {{ .Values.ingestionApi.port }}

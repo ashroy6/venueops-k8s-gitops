@@ -37,21 +37,8 @@ spec:
           image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
           imagePullPolicy: {{ .Values.web.image.pullPolicy }}
 
-          # Partial hardening only.
-          # We are NOT forcing runAsNonRoot yet because the current web image runs as root.
-          # Proper final fix requires rebuilding the web image as non-root.
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-              add:
-                - CHOWN
-                - NET_BIND_SERVICE
-                - SETUID
-                - SETGID
-            seccompProfile:
-              type: RuntimeDefault
+            {{- toYaml .Values.web.securityContext | nindent 12 }}
 
           ports:
             - containerPort: {{ .Values.web.port }}

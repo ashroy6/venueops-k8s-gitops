@@ -1,4 +1,4 @@
-namespace:
+﻿namespace:
   create: true
   name: venueops
 
@@ -31,6 +31,17 @@ api:
   env:
     MOCK_SERVICEBUS_QUEUE: /data/queues/jobs.jsonl
     AUDIT_LOG_PATH: /data/audit/audit.jsonl
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
   resources:
     requests:
       cpu: 100m
@@ -51,6 +62,17 @@ ingestionApi:
   port: 8001
   env:
     MOCK_EVENTHUB_QUEUE: /data/queues/device_logs.jsonl
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 999
+    runAsGroup: 999
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
   resources:
     requests:
       cpu: 100m
@@ -76,6 +98,18 @@ web:
   pdb:
     enabled: true
     maxUnavailable: 1
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - CHOWN
+        - NET_BIND_SERVICE
+        - SETUID
+        - SETGID
+    seccompProfile:
+      type: RuntimeDefault
   resources:
     requests:
       cpu: 50m
