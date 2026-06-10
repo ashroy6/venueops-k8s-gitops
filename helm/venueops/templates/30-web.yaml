@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.web.name }}
@@ -21,6 +21,8 @@ spec:
       labels:
         app: {{ .Values.web.name }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccounts.web.name }}
+      automountServiceAccountToken: {{ .Values.serviceAccounts.web.automountServiceAccountToken }}
       nodeSelector:
         {{- toYaml .Values.web.nodeSelector | nindent 8 }}
       {{- if .Values.web.antiAffinity }}

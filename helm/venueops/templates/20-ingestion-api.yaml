@@ -16,6 +16,8 @@ spec:
       labels:
         app: {{ .Values.ingestionApi.name }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccounts.ingestionApi.name }}
+      automountServiceAccountToken: {{ .Values.serviceAccounts.ingestionApi.automountServiceAccountToken }}
       nodeSelector:
         {{- toYaml .Values.ingestionApi.nodeSelector | nindent 8 }}
       containers:
@@ -73,3 +75,4 @@ spec:
     - name: http
       port: {{ .Values.ingestionApi.port }}
       targetPort: {{ .Values.ingestionApi.port }}
+

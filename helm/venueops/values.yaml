@@ -2,6 +2,25 @@ namespace:
   create: true
   name: venueops
 
+serviceAccounts:
+  web:
+    create: true
+    name: venueops-web-sa
+    automountServiceAccountToken: false
+    annotations: {}
+
+  api:
+    create: true
+    name: venueops-api-sa
+    automountServiceAccountToken: false
+    annotations: {}
+
+  ingestionApi:
+    create: true
+    name: venueops-ingestion-api-sa
+    automountServiceAccountToken: false
+    annotations: {}
+
 storage:
   enabled: true
   pvName: venueops-hostpath-pv

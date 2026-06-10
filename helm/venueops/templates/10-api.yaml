@@ -16,6 +16,8 @@ spec:
       labels:
         app: {{ .Values.api.name }}
     spec:
+      serviceAccountName: {{ .Values.serviceAccounts.api.name }}
+      automountServiceAccountToken: {{ .Values.serviceAccounts.api.automountServiceAccountToken }}
       nodeSelector:
         {{- toYaml .Values.api.nodeSelector | nindent 8 }}
       containers:
@@ -73,3 +75,4 @@ spec:
     - name: http
       port: {{ .Values.api.port }}
       targetPort: {{ .Values.api.port }}
+
