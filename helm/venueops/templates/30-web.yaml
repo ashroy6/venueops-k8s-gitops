@@ -1,4 +1,4 @@
-﻿apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.web.name }}
@@ -43,6 +43,11 @@ spec:
           ports:
             - containerPort: {{ .Values.web.port }}
               name: http
+
+          volumeMounts:
+            - name: nginx-tmp
+              mountPath: /tmp
+
           readinessProbe:
             httpGet:
               path: /health.html
@@ -55,6 +60,10 @@ spec:
             {{- toYaml .Values.probes.liveness | nindent 12 }}
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
+
+      volumes:
+        - name: nginx-tmp
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
