@@ -136,3 +136,7 @@ ingress:
     web: venueops.local
     api: api.venueops.local
     ingestion: ingestion.venueops.local
+
+networkPolicy:
+  enabled: true
+  ingressNamespace: ingress-nginx
