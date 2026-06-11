@@ -20,30 +20,46 @@ Vagrant.configure("2") do |config|
       ip: "192.168.56.11",
       role: "control-plane",
       cpus: 2,
-      memory: 2560
+      memory: 2048
     },
     {
       name: "kl-cp-3",
       ip: "192.168.56.12",
       role: "control-plane",
       cpus: 2,
-      memory: 2560
+      memory: 2048
     },
     {
       name: "kl-worker-1",
       ip: "192.168.56.21",
       role: "worker",
       cpus: 2,
-      memory: 4096
+      memory: 3072
     },
     {
       name: "kl-worker-2",
       ip: "192.168.56.22",
       role: "worker",
       cpus: 2,
-      memory: 4096
+      memory: 3072
+    },
+    {
+      name: "kl-worker-3",
+      ip: "192.168.56.23",
+      role: "worker",
+      cpus: 2,
+      memory: 2048
+    },
+    {
+      name: "kl-worker-4",
+      ip: "192.168.56.24",
+      role: "worker",
+      cpus: 2,
+      memory: 2048
     }
   ]
+
+  hosts_entries = nodes.map { |n| "#{n[:ip]} #{n[:name]}" }.join("\n")
 
   nodes.each do |node|
     config.vm.define node[:name] do |machine|
@@ -59,21 +75,24 @@ Vagrant.configure("2") do |config|
       machine.vm.provision "shell", inline: <<-SHELL
         set -e
 
-        echo "#{node[:ip]} #{node[:name]}" | sudo tee -a /etc/hosts
-        echo "Node role: #{node[:role]}" | sudo tee /etc/kl-node-role
+        echo "==> Writing KL cluster hosts entries"
 
-        echo "Disabling swap for Kubernetes..."
-        sudo swapoff -a || true
+        cat <<'HOSTS' | sudo tee /tmp/kl-hosts >/dev/null
+#{hosts_entries}
+HOSTS
 
-        sudo cp /etc/fstab /etc/fstab.bak.$(date +%Y%m%d%H%M%S) || true
+        sudo sed -i '/kl-cp-1/d;/kl-cp-2/d;/kl-cp-3/d;/kl-worker-1/d;/kl-worker-2/d;/kl-worker-3/d;/kl-worker-4/d' /etc/hosts
+        cat /tmp/kl-hosts | sudo tee -a /etc/hosts >/dev/null
 
-        sudo sed -i '/ swap / s/^/# DISABLED_FOR_KUBERNETES /' /etc/fstab || true
-        sudo sed -i '/swapfile/ s/^/# DISABLED_FOR_KUBERNETES /' /etc/fstab || true
+        echo "==> Writing KL node role"
+        echo "#{node[:role]}" | sudo tee /etc/kl-node-role >/dev/null
 
-        sudo systemctl mask swap.target || true
+        echo "==> Node identity"
+        hostname
+        cat /etc/kl-node-role
 
-        echo "Swap status after disable:"
-        free -h
+        echo "==> Current /etc/hosts KL entries"
+        grep 'kl-' /etc/hosts || true
       SHELL
 
       machine.vm.provision "shell", path: "scripts/prepare-node.sh"

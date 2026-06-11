@@ -33,8 +33,15 @@ esac
 
 echo "==> Configuring HA API on ${NODE_NAME} (${NODE_IP})"
 
+echo "==> Installing HAProxy, Keepalived, curl and arping"
+
 sudo apt-get update -y
-sudo apt-get install -y haproxy keepalived curl arping
+
+sudo apt-get install -y \
+  haproxy \
+  keepalived \
+  curl \
+  arping
 
 echo "==> Applying sysctl settings for stable VIP behaviour"
 
@@ -85,8 +92,9 @@ backend kubernetes_control_planes
     server kl-cp-3 ${CP3_IP}:6443 check
 HAPROXY
 
-sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+echo "==> Validating HAProxy config"
 
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg
 
 echo "==> Installing VIP gratuitous ARP notify script"
 
@@ -161,7 +169,7 @@ vrrp_instance VI_K8S_API {
 }
 KEEPALIVED
 
-echo "==> Restarting services"
+echo "==> Restarting HAProxy and Keepalived"
 
 sudo systemctl enable haproxy >/dev/null
 sudo systemctl restart haproxy
@@ -170,16 +178,18 @@ sudo systemctl enable keepalived >/dev/null
 sudo systemctl restart keepalived
 
 echo "==> Verifying HAProxy listener"
+
 sudo ss -lntp | grep ':8443' || {
   echo "ERROR: HAProxy is not listening on 8443"
   exit 1
 }
 
 echo "==> Current VIP ownership on ${NODE_NAME}"
+
 ip -4 addr show "${INTERFACE}" | grep "${VIP}" || true
 
 echo "==> Local VIP health check"
+
 curl -k --connect-timeout 3 "https://${VIP}:8443/healthz" || true
 
 echo "==> Done: HA API configured on ${NODE_NAME}"
-
