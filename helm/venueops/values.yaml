@@ -102,7 +102,7 @@ ingestionApi:
 
 web:
   name: venueops-web
-  replicas: 2
+  replicas: 3
   image:
     repository: moonarrv007/venueops-web
     tag: kube-v3-nonroot
