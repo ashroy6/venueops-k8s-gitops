@@ -159,3 +159,9 @@ ingress:
 networkPolicy:
   enabled: true
   ingressNamespace: ingress-nginx
+
+rbacDemo:
+  enabled: true
+  serviceAccountName: venueops-rbac-demo-sa
+  roleName: venueops-readonly-role
+  roleBindingName: venueops-readonly-binding
