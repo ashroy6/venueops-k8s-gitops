@@ -4,10 +4,24 @@ kind: Ingress
 metadata:
   name: venueops-ingress
   namespace: {{ include "venueops.namespace" . }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - secretName: {{ .Values.ingress.tls.secretName | quote }}
+      hosts:
+        {{- range .Values.ingress.tls.hosts }}
+        - {{ . | quote }}
+        {{- end }}
+  {{- end }}
+
   rules:
-    - host: {{ .Values.ingress.hosts.web }}
+    - host: {{ .Values.ingress.hosts.web | quote }}
       http:
         paths:
           - path: /
@@ -17,7 +31,8 @@ spec:
                 name: {{ .Values.web.name }}
                 port:
                   number: {{ .Values.web.port }}
-    - host: {{ .Values.ingress.hosts.api }}
+
+    - host: {{ .Values.ingress.hosts.api | quote }}
       http:
         paths:
           - path: /
@@ -27,7 +42,8 @@ spec:
                 name: {{ .Values.api.name }}
                 port:
                   number: {{ .Values.api.port }}
-    - host: {{ .Values.ingress.hosts.ingestion }}
+
+    - host: {{ .Values.ingress.hosts.ingestion | quote }}
       http:
         paths:
           - path: /

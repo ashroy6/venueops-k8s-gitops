@@ -1,0 +1,33 @@
+{{- if .Values.certificates.venueops.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.certificates.venueops.name }}
+  namespace: {{ .Values.certificates.venueops.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  secretName: {{ .Values.certificates.venueops.secretName | quote }}
+  commonName: {{ .Values.certificates.venueops.commonName | quote }}
+  duration: {{ .Values.certificates.venueops.duration | quote }}
+  renewBefore: {{ .Values.certificates.venueops.renewBefore | quote }}
+
+  dnsNames:
+    {{- range .Values.certificates.venueops.dnsNames }}
+    - {{ . | quote }}
+    {{- end }}
+
+  privateKey:
+    algorithm: {{ .Values.certificates.venueops.privateKey.algorithm | quote }}
+    size: {{ .Values.certificates.venueops.privateKey.size }}
+
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+
+  issuerRef:
+    name: {{ .Values.clusterIssuers.ca.name }}
+    kind: ClusterIssuer
+    group: cert-manager.io
+{{- end }}

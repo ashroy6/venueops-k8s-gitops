@@ -151,10 +151,18 @@ probes:
 ingress:
   enabled: true
   className: nginx
+  annotations: {}
   hosts:
     web: venueops.local
     api: api.venueops.local
     ingestion: ingestion.venueops.local
+  tls:
+    enabled: true
+    secretName: venueops-tls
+    hosts:
+      - venueops.local
+      - api.venueops.local
+      - ingestion.venueops.local
 
 networkPolicy:
   enabled: true
