@@ -1,0 +1,21 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: prometheus
+spec:
+  type: {{ .Values.prometheus.service.type }}
+  selector:
+    app: prometheus
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.prometheus.service.port }}
+      targetPort: http
+      {{- if eq .Values.prometheus.service.type "NodePort" }}
+      nodePort: {{ .Values.prometheus.service.nodePort }}
+      {{- end }}
+{{- end }}

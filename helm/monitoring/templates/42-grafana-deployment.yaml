@@ -1,0 +1,132 @@
+{{- if .Values.grafana.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: grafana
+spec:
+  replicas: {{ .Values.grafana.replicas }}
+  revisionHistoryLimit: {{ .Values.grafana.revisionHistoryLimit }}
+
+  strategy:
+    type: {{ .Values.grafana.strategy.type }}
+
+  selector:
+    matchLabels:
+      app: grafana
+
+  template:
+    metadata:
+      labels:
+        app: grafana
+
+    spec:
+      serviceAccountName: {{ .Values.grafana.serviceAccountName }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ .Values.grafana.terminationGracePeriodSeconds }}
+
+      securityContext:
+        {{- toYaml .Values.grafana.securityContext | nindent 8 }}
+
+      nodeSelector:
+        {{- toYaml .Values.grafana.nodeSelector | nindent 8 }}
+
+      containers:
+        - name: grafana
+          image: {{ .Values.grafana.image | quote }}
+          imagePullPolicy: {{ .Values.grafana.imagePullPolicy }}
+
+          securityContext:
+            {{- toYaml .Values.grafana.containerSecurityContext | nindent 12 }}
+
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-admin-credentials
+                  key: admin-user
+
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-admin-credentials
+                  key: admin-password
+
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+
+            - name: GF_LOG_MODE
+              value: "console"
+
+            - name: GF_PATHS_DATA
+              value: /var/lib/grafana
+
+            - name: GF_PATHS_LOGS
+              value: /var/log/grafana
+
+            - name: GF_PATHS_PLUGINS
+              value: /var/lib/grafana/plugins
+
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+
+          readinessProbe:
+            {{- toYaml .Values.grafana.probes.readiness | nindent 12 }}
+
+          livenessProbe:
+            {{- toYaml .Values.grafana.probes.liveness | nindent 12 }}
+
+          volumeMounts:
+            - name: grafana-data
+              mountPath: /var/lib/grafana
+
+            - name: grafana-logs
+              mountPath: /var/log/grafana
+
+            - name: grafana-tmp
+              mountPath: /tmp
+
+            - name: grafana-datasource
+              mountPath: /etc/grafana/provisioning/datasources
+              readOnly: true
+
+            - name: grafana-dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+              readOnly: true
+
+            - name: grafana-dashboards
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
+
+          resources:
+            {{- toYaml .Values.grafana.resources | nindent 12 }}
+
+      volumes:
+        - name: grafana-data
+          emptyDir: {}
+
+        - name: grafana-logs
+          emptyDir: {}
+
+        - name: grafana-tmp
+          emptyDir: {}
+
+        - name: grafana-datasource
+          configMap:
+            name: grafana-datasource
+
+        - name: grafana-dashboard-provider
+          configMap:
+            name: grafana-dashboard-provider
+
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
+{{- end }}

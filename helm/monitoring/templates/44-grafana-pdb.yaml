@@ -1,0 +1,15 @@
+{{- if and .Values.grafana.enabled .Values.grafana.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: grafana-pdb
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: grafana
+spec:
+  maxUnavailable: {{ .Values.grafana.pdb.maxUnavailable }}
+  unhealthyPodEvictionPolicy: {{ .Values.grafana.pdb.unhealthyPodEvictionPolicy }}
+  selector:
+    matchLabels:
+      app: grafana
+{{- end }}

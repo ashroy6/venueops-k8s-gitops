@@ -4,15 +4,73 @@ namespace:
 
 prometheus:
   enabled: true
+  replicas: 1
   image: prom/prometheus:v2.55.1
+  imagePullPolicy: IfNotPresent
   serviceAccountName: prometheus
+  revisionHistoryLimit: 3
+  terminationGracePeriodSeconds: 60
+
+  strategy:
+    type: Recreate
+
   nodeSelector:
     node-role.kubernetes.io/worker: worker
+
   retention: 6h
+
   service:
     type: NodePort
     port: 9090
     nodePort: 30090
+
+  pdb:
+    enabled: false
+    maxUnavailable: 1
+    unhealthyPodEvictionPolicy: AlwaysAllow
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  probes:
+    startup:
+      httpGet:
+        path: /-/ready
+        port: http
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 30
+
+    readiness:
+      httpGet:
+        path: /-/ready
+        port: http
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    liveness:
+      httpGet:
+        path: /-/healthy
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      timeoutSeconds: 3
+      failureThreshold: 3
+
   resources:
     requests:
       cpu: 100m
@@ -23,15 +81,67 @@ prometheus:
 
 grafana:
   enabled: true
+  replicas: 1
   image: grafana/grafana:11.3.1
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: grafana
+  revisionHistoryLimit: 3
+  terminationGracePeriodSeconds: 30
+
+  strategy:
+    type: Recreate
+
   nodeSelector:
     node-role.kubernetes.io/worker: worker
+
   adminUser: admin
   adminPassword: admin
+
   service:
     type: NodePort
     port: 3000
     nodePort: 30300
+
+  pdb:
+    enabled: false
+    maxUnavailable: 1
+    unhealthyPodEvictionPolicy: AlwaysAllow
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 472
+    runAsGroup: 472
+    fsGroup: 472
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  probes:
+    readiness:
+      httpGet:
+        path: /api/health
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 6
+
+    liveness:
+      httpGet:
+        path: /api/health
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      timeoutSeconds: 5
+      failureThreshold: 3
+
   resources:
     requests:
       cpu: 100m
@@ -43,7 +153,34 @@ grafana:
 nodeExporter:
   enabled: true
   image: prom/node-exporter:v1.8.2
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: node-exporter
   port: 9100
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  probes:
+    readiness:
+      tcpSocket:
+        port: metrics
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    liveness:
+      tcpSocket:
+        port: metrics
+      initialDelaySeconds: 20
+      periodSeconds: 20
+      timeoutSeconds: 3
+      failureThreshold: 3
+
   resources:
     requests:
       cpu: 50m
@@ -55,6 +192,77 @@ nodeExporter:
 kubeStateMetrics:
   enabled: true
   image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: kube-state-metrics
+  replicas: 2
+  revisionHistoryLimit: 3
+  terminationGracePeriodSeconds: 30
+
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
   port: 8080
   telemetryPort: 8081
-  replicas: 2
+
+  nodeSelector:
+    node-role.kubernetes.io/worker: worker
+
+  pdb:
+    enabled: true
+    maxUnavailable: 1
+    unhealthyPodEvictionPolicy: AlwaysAllow
+
+  topologySpread:
+    enabled: true
+    maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  probes:
+    startup:
+      httpGet:
+        path: /healthz
+        port: http-metrics
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 30
+
+    readiness:
+      httpGet:
+        path: /readyz
+        port: telemetry
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+    liveness:
+      httpGet:
+        path: /livez
+        port: http-metrics
+      initialDelaySeconds: 20
+      periodSeconds: 20
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi

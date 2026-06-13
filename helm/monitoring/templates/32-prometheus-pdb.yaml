@@ -1,0 +1,15 @@
+{{- if and .Values.prometheus.enabled .Values.prometheus.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: prometheus-pdb
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: prometheus
+spec:
+  maxUnavailable: {{ .Values.prometheus.pdb.maxUnavailable }}
+  unhealthyPodEvictionPolicy: {{ .Values.prometheus.pdb.unhealthyPodEvictionPolicy }}
+  selector:
+    matchLabels:
+      app: prometheus
+{{- end }}

@@ -1,0 +1,15 @@
+{{- if and .Values.kubeStateMetrics.enabled .Values.kubeStateMetrics.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: kube-state-metrics-pdb
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: kube-state-metrics
+spec:
+  maxUnavailable: {{ .Values.kubeStateMetrics.pdb.maxUnavailable }}
+  unhealthyPodEvictionPolicy: {{ .Values.kubeStateMetrics.pdb.unhealthyPodEvictionPolicy }}
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+{{- end }}
