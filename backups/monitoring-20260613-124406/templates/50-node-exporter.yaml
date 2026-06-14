@@ -1,0 +1,65 @@
+{{- if .Values.nodeExporter.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.nodeExporter.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      hostNetwork: true
+      hostPID: true
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: node-exporter
+          image: {{ .Values.nodeExporter.image }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--path.rootfs=/host"
+            - "--web.listen-address=0.0.0.0:{{ .Values.nodeExporter.port }}"
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.nodeExporter.port }}
+              hostPort: {{ .Values.nodeExporter.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: rootfs
+              mountPath: /host
+              readOnly: true
+          resources:
+            {{- toYaml .Values.nodeExporter.resources | nindent 12 }}
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: node-exporter
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: node-exporter
+  ports:
+    - name: metrics
+      port: {{ .Values.nodeExporter.port }}
+      targetPort: {{ .Values.nodeExporter.port }}
+{{- end }}

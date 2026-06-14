@@ -1,0 +1,46 @@
+{{- if and .Values.prometheus.enabled .Values.prometheus.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: prometheus-pdb
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: prometheus
+spec:
+  minAvailable: {{ .Values.prometheus.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: prometheus
+{{- end }}
+
+{{- if and .Values.grafana.enabled .Values.grafana.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: grafana-pdb
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: grafana
+spec:
+  minAvailable: {{ .Values.grafana.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: grafana
+{{- end }}
+
+{{- if and .Values.kubeStateMetrics.enabled .Values.kubeStateMetrics.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: kube-state-metrics-pdb
+  namespace: {{ include "monitoring.namespace" . }}
+  labels:
+    app: kube-state-metrics
+spec:
+  minAvailable: {{ .Values.kubeStateMetrics.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+{{- end }}
